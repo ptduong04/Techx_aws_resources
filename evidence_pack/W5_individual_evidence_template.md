@@ -6,11 +6,8 @@
 |---|---|
 | Project | W5 Individual Resubmission |
 | AWS account type | Personal AWS account |
-| AWS Region | `us-west-2` - United States (Oregon) |
-| Evidence date | 2026-05-31 to 2026-06-01 |
-| Student name | TODO - fill before submission |
-| Git repository | TODO - add repository link |
-| Evidence pack link | TODO - add final GitHub evidence link |
+| AWS Region | `us-west-2` - United States (Oregon) | 
+| Student name | Phạm Tùng Dương / XB-DN26-105 |
 
 This evidence pack documents an individual implementation of the W5 AWS project using a cost-conscious, two-VPC architecture. The implementation focuses on the required learning outcomes: private networking, security controls, VPC Flow Logs, storage, backup and restore, API Gateway with Lambda, API key protection, and throttling validation.
 
@@ -19,34 +16,6 @@ The project was built in a personal AWS account and intentionally kept lightweig
 ---
 
 ## 2. Architecture Summary
-
-### High-Level Design
-
-```mermaid
-flowchart LR
-    User["User / Postman / PowerShell"] --> APIGW["API Gateway REST API /items"]
-    APIGW --> Lambda["Lambda xbrain-w5-api-handler"]
-    Lambda --> EFS["EFS xbrain-w5-efs"]
-
-    subgraph AppVPC["App VPC - 10.10.0.0/16"]
-        Lambda
-        EFS
-        AppSubnets["Private subnets 10.10.1.0/24 and 10.10.2.0/24"]
-    end
-
-    subgraph DataVPC["Data VPC - 10.20.0.0/16"]
-        EC2["EC2 test instance"]
-        EBS["EBS test volume"]
-        DDB["DynamoDB table xbrain-w5-items"]
-        DataSubnets["Private subnets 10.20.1.0/24 and 10.20.2.0/24"]
-    end
-
-    AppVPC <-->|"VPC Peering"| DataVPC
-    EC2 --> EBS
-    Backup["AWS Backup vault and plan"] --> EBS
-    Backup --> EFS
-    Backup --> DDB
-```
 
 ### Main Components
 
@@ -327,76 +296,5 @@ This is a valid serverless throttling control because API Gateway can protect th
 
 The parallel request test generated throttled API responses. CloudWatch showed an increase in API Gateway `4XXError` metrics, which corresponds to rejected/throttled requests such as HTTP `429`. Lambda logs also confirmed that successful requests continued to invoke the function normally. This demonstrates that the serverless endpoint can be protected from uncontrolled request bursts.
 
----
 
-## 9. Cleanup Plan
 
-The project was created for evidence collection only. To avoid ongoing cost after final review, the following resources should be removed in a controlled order.
-
-### Recommended Cleanup Order
-
-1. Delete API Gateway API `xbrain-w5-api`.
-2. Delete API key `xbrain-w5-api-key` and usage plan `xbrain-w5-usage-plan`.
-3. Delete Lambda function `xbrain-w5-api-handler`.
-4. Delete EFS access point and EFS file system `xbrain-w5-efs`.
-5. Delete DynamoDB table `xbrain-w5-items`.
-6. Terminate EC2 instance `xbrain-w5-ec2-test`.
-7. Delete unattached EBS volumes, including restored test volumes.
-8. Delete AWS Backup recovery points that are no longer needed.
-9. Delete AWS Backup plan and vault after recovery points are removed.
-10. Delete VPC interface endpoints used for SSM.
-11. Delete VPC Flow Logs and CloudWatch log groups if no longer needed.
-12. Delete VPC Peering connection.
-13. Delete App VPC and Data VPC after dependencies are removed.
-
-### Cleanup Note
-
-The project intentionally avoided long-running or high-cost resources. The most important cleanup items are EC2, EBS volumes, EFS, AWS Backup recovery points, VPC interface endpoints, and CloudWatch logs.
-
----
-
-## 10. Final Reviewer Checklist
-
-| Area | Status |
-|---|---|
-| Cost budget created | Completed |
-| Two VPCs created | Completed |
-| VPC Peering active | Completed |
-| Routes configured both directions | Completed |
-| VPC Flow Logs enabled | Completed |
-| Security Groups reviewed | Completed |
-| NACL evidence captured | Completed |
-| Negative test captured | Completed |
-| DynamoDB table and item created | Completed |
-| EFS created and mounted to Lambda | Completed |
-| EC2 and EBS test file created | Completed |
-| AWS Backup jobs completed | Completed |
-| EBS restore verified | Completed |
-| API Gateway route created | Completed |
-| API key and usage plan configured | Completed |
-| API `403` without key verified | Completed |
-| API `200` with key verified | Completed |
-| Throttling behavior validated | Completed |
-| Lambda logs captured | Completed |
-| Cleanup plan included | Completed |
-
----
-
-## 11. Submission Email Draft
-
-```text
-To: loc.le@xbrain.com.vn
-Cc: oanh@example.com
-Subject: [W5 Individual Resubmission] YOUR_NAME
-
-Hi anh Loc,
-
-Em gui lai W5 individual evidence pack bang AWS account ca nhan.
-
-Repository: TODO
-Evidence pack: TODO
-
-Em cam on anh.
-```
-
-Before sending the email, replace `YOUR_NAME`, repository link, evidence pack link, and the correct CC email address.
